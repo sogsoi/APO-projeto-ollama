@@ -55,6 +55,9 @@ def validar_exercicio(texto: str, padrao: Padrao) -> list[str]:
     for marca in ("**Cenário:**", "**Sua tarefa:**", "Minha resposta"):
         if marca not in texto:
             problemas.append(f"falta a seção '{marca}'")
+    resposta = re.search(r"\*{0,2}Minha resposta:\*{0,2}", texto)
+    if resposta and texto[resposta.end():].strip():
+        problemas.append("o exercício trouxe uma resposta depois de 'Minha resposta'")
     if palavras(texto) > 300:
         problemas.append("exercício longo demais")
     return problemas
@@ -68,6 +71,8 @@ def validar_feedback(texto: str, exigir_resultado: bool = False) -> list[str]:
         problemas.append("feedback não pode conter código")
     if "Pergunta para avançar" not in texto:
         problemas.append("falta a 'Pergunta para avançar'")
+    if re.search(r"trecho literal da resposta|até 30 palavras", texto, flags=re.IGNORECASE):
+        problemas.append("copiou a instrução do template em vez do trecho do estudante")
     if exigir_resultado:
         if not re.search(r"RESULTADO:\s*(CORRETO|PARCIAL|INCORRETO)", texto, re.IGNORECASE):
             problemas.append("falta a linha 'RESULTADO: CORRETO|PARCIAL|INCORRETO'")
@@ -87,8 +92,7 @@ def extrair_veredito(texto: str) -> tuple[str, str]:
 
 
 _OMISSAO = ("falt", "nao menciona", "não menciona", "nao mencionou", "não mencionou",
-            "omit", "lacuna", "poderia mencionar", "poderia ser mais", "incompleto",
-            "adicione essa", "deveria mencionar")
+            "omit", "lacuna", "poderia mencionar", "incompleto")
 _ERRO = ("erro", "incorret", "invent", "contradiz", "contradição", "errad", "falso",
          "confunde", "outro padrão", "outro padrao")
 
@@ -97,9 +101,8 @@ def veredito_efetivo(veredito: str, motivo: str) -> str:
     """Lacuna/omissão não é erro: o texto é curto de propósito."""
     if veredito != "CORRIGIR":
         return veredito
-    bruto = motivo.lower()
-    sem_negacao = re.sub(r"\b(não|nao|sem|nenhum|nenhuma)\s+\w+", " ", bruto)
-    if any(k in bruto for k in _OMISSAO) and not any(k in sem_negacao for k in _ERRO):
+    m = re.sub(r"\b(não|nao|sem|nenhum|nenhuma)\s+\w+", " ", motivo.lower())  # ignora negações
+    if any(k in m for k in _OMISSAO) and not any(k in m for k in _ERRO):
         return "OK"
     return veredito
 

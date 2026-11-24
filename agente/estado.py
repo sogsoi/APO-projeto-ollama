@@ -47,10 +47,12 @@ class EstadoAluno:
             linhas.append(f"{papel}: {texto}")
         return "\n".join(linhas)
 
-    def resumo(self, nome_padrao: str, proximo: str | None) -> str:
+    def resumo(self, nome_padrao: str, proximo: str | None,
+               ocultar_padrao: bool = False) -> str:
         vistos = self.ja_viu(nome_padrao)
+        estudo = "(omitido de propósito: o aluno deve descobrir o padrão)" if ocultar_padrao else nome_padrao
         partes = [
-            f"Padrão em estudo: {nome_padrao}.",
+            f"Padrão em estudo: {estudo}.",
             "Já abordado: " + (", ".join(vistos) if vistos else "nada ainda") + ".",
             "Exercício pendente: " + ("sim" if self.exercicio else "não") + ".",
         ]
