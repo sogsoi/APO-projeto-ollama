@@ -318,7 +318,7 @@ EXERCÍCIO PROPOSTO:
 RESPOSTA DO ESTUDANTE:
 {pergunta}
 
-Avalie a resposta sem revelar a solução. Comece com: **O que você escreveu:** "trecho literal da resposta, até 30 palavras". Depois:
+Avalie a resposta sem revelar a solução, seguindo exatamente esta estrutura:
 
 **O que está certo:** 1 ou 2 frases.
 **O que ainda falta ou está equivocado:** 1 ou 2 frases, apontando o conceito, não só "errado". Antes de dizer que algo falta, confira se o aluno já escreveu isso com outras palavras; se não ficou explícito, diga "não ficou explícito".
@@ -369,7 +369,7 @@ Motivo de até 50 palavras terminando em 'VEREDITO: OK' ou 'VEREDITO: CORRIGIR'.
 Revise o exercício produzido acima. Você é o revisor, não o estudante: não resolva o exercício. Responda com uma linha por item:
 (a) trata de {padrao_nome}: ok/falha
 (b) não entrega solução nem código: ok/falha
-(c) não revela o nome do padrão nem termos como Context, Target, Adaptee: ok/falha
+(c) NÃO cita o nome do padrão nem termos como Context, Target, Adaptee (marque 'ok' se estiverem ausentes; marque 'falha' somente se algum deles aparecer): ok/falha
 (d) pede uma decisão de projeto, não memorização: ok/falha
 (e) não inventa conteúdo: ok/falha
 Depois escreva o motivo em até 40 palavras e termine com 'VEREDITO: OK' ou 'VEREDITO: CORRIGIR'.

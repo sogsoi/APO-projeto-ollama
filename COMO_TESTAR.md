@@ -1,10 +1,10 @@
 ﻿# Como testar
 
-Rode tudo na pasta `qwen_stg`, chamando o Python do venv. Não precisa ativar o
+Rode tudo na pasta raiz do projeto, chamando o Python do venv. Não precisa ativar o
 ambiente:
 
 ```powershell
-cd C:\Users\ratoyy\qwen_stg
+cd APO-projeto-ollama
 ```
 
 ## 1. Ambiente

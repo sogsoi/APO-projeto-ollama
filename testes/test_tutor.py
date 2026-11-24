@@ -11,7 +11,7 @@ from agente.estado import EstadoAluno
 from agente.roteador import rotear
 from agente.tutor import Tutor
 from agente.validadores import (extrair_resultado, extrair_veredito, validar_exercicio,
-                                validar_feedback, validar_texto)
+                                validar_feedback, validar_texto, veredito_efetivo)
 
 
 class MotorFalso:
@@ -213,14 +213,25 @@ class FluxoTest(unittest.TestCase):
         self.assertIsNotNone(t.estado.exercicio)
 
     def test_avaliacao_registra_dificuldade(self):
-        fb = ("**O que você escreveu:** \"x\"\n**Pergunta para avançar:** e agora?\n"
+        fb = ("**O que está certo:** separou a interface.\n**Pergunta para avançar:** e agora?\n"
               "RESULTADO: PARCIAL\nCONCEITO: quem escolhe a regra")
         t = Tutor(MotorFalso([fb, "VEREDITO: OK"]), registrar=False)
         t.estado = estado_com_exercicio()
         r = t.responder("Minha resposta: criaria uma interface e injetaria a regra")
+        self.assertTrue(r.startswith('**O que você escreveu:** "Minha resposta: criaria uma interface'))
         self.assertNotIn("RESULTADO", r)
         self.assertIn("quem escolhe a regra", t.estado.dificuldades)
         self.assertIsNotNone(t.estado.exercicio)  # continua pendente
+
+    def test_lacuna_com_nao_menciona_ou_poderia_ser_mais_vira_ok(self):
+        self.assertEqual(
+            veredito_efetivo("CORRIGIR", "Correto, mas não menciona explicitamente que é a solução."),
+            "OK",
+        )
+        self.assertEqual(
+            veredito_efetivo("CORRIGIR", "Não inventa elementos, mas poderia ser mais específico."),
+            "OK",
+        )
 
     def test_abandonar_exercicio_limpa_estado(self):
         t = Tutor(MotorFalso(), registrar=False)

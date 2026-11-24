@@ -270,6 +270,9 @@ class Tutor:
         if info.get("fallback"):
             res, conc = "PARCIAL", ""
         feedback = _sem_codigo(feedback)
+        if not feedback.startswith("**O que você escreveu:**"):
+            trecho = " ".join(texto.split()[:30])
+            feedback = f'**O que você escreveu:** "{trecho}"\n\n{feedback}'
 
         self.estado.tentativas += 1
         if res == "CORRETO":

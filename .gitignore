@@ -1,6 +1,8 @@
 .venv/
+.idea/
 __pycache__/
 *.pyc
 .env
 evidencias/
 *.zip
+*.~lock.*

@@ -273,7 +273,7 @@ testes cobrem o que não depende do modelo.
 ## 7. Como reproduzir
 
 ```powershell
-cd C:\Users\ratoyy\qwen_stg
+cd APO-projeto-ollama
 
 # testes sem modelo
 .\.venv\Scripts\python.exe -m unittest discover -s testes -v

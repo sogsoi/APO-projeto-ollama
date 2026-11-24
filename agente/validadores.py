@@ -87,7 +87,8 @@ def extrair_veredito(texto: str) -> tuple[str, str]:
 
 
 _OMISSAO = ("falt", "nao menciona", "não menciona", "nao mencionou", "não mencionou",
-            "omit", "lacuna", "poderia mencionar", "incompleto")
+            "omit", "lacuna", "poderia mencionar", "poderia ser mais", "incompleto",
+            "adicione essa", "deveria mencionar")
 _ERRO = ("erro", "incorret", "invent", "contradiz", "contradição", "errad", "falso",
          "confunde", "outro padrão", "outro padrao")
 
@@ -96,8 +97,9 @@ def veredito_efetivo(veredito: str, motivo: str) -> str:
     """Lacuna/omissão não é erro: o texto é curto de propósito."""
     if veredito != "CORRIGIR":
         return veredito
-    m = re.sub(r"\b(não|nao|sem|nenhum|nenhuma)\s+\w+", " ", motivo.lower())  # ignora negações
-    if any(k in m for k in _OMISSAO) and not any(k in m for k in _ERRO):
+    bruto = motivo.lower()
+    sem_negacao = re.sub(r"\b(não|nao|sem|nenhum|nenhuma)\s+\w+", " ", bruto)
+    if any(k in bruto for k in _OMISSAO) and not any(k in sem_negacao for k in _ERRO):
         return "OK"
     return veredito
 
