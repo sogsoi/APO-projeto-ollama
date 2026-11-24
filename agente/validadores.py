@@ -55,6 +55,9 @@ def validar_exercicio(texto: str, padrao: Padrao) -> list[str]:
     for marca in ("**Cenário:**", "**Sua tarefa:**", "Minha resposta"):
         if marca not in texto:
             problemas.append(f"falta a seção '{marca}'")
+    resposta = re.search(r"\*{0,2}Minha resposta:\*{0,2}", texto)
+    if resposta and texto[resposta.end():].strip():
+        problemas.append("o exercício trouxe uma resposta depois de 'Minha resposta'")
     if palavras(texto) > 300:
         problemas.append("exercício longo demais")
     return problemas
@@ -68,6 +71,8 @@ def validar_feedback(texto: str, exigir_resultado: bool = False) -> list[str]:
         problemas.append("feedback não pode conter código")
     if "Pergunta para avançar" not in texto:
         problemas.append("falta a 'Pergunta para avançar'")
+    if re.search(r"trecho literal da resposta|até 30 palavras", texto, flags=re.IGNORECASE):
+        problemas.append("copiou a instrução do template em vez do trecho do estudante")
     if exigir_resultado:
         if not re.search(r"RESULTADO:\s*(CORRETO|PARCIAL|INCORRETO)", texto, re.IGNORECASE):
             problemas.append("falta a linha 'RESULTADO: CORRETO|PARCIAL|INCORRETO'")

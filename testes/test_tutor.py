@@ -60,6 +60,71 @@ class RoteadorTest(unittest.TestCase):
         d = rotear("E o Bridge?", self.e)
         self.assertEqual((d.intencao, d.padrao.nome), ("confusoes", "Adapter"))
 
+    def test_cenario_1_primeiro_contato_comeca_pelo_contexto(self):
+        texto = "Explique o padrão Strategy e qual problema ele resolve."
+        self.assertEqual(rotear(texto, self.e).intencao, "contexto")
+        self.e.marcar_visto("Strategy", "contexto")
+        self.assertEqual(rotear(texto, self.e).intencao, "conceito")
+
+    def test_cenario_3_selecao(self):
+        texto = ("Descreva uma situação em que o Strategy é a melhor escolha e uma em "
+                 "que ele deve ser evitado.")
+        self.assertEqual(rotear(texto, self.e).intencao, "quando")
+
+    def test_cenario_4_uso_incorreto(self):
+        texto = "Como o Strategy costuma ser aplicado de forma errada? Como corrigir?"
+        self.assertEqual(rotear(texto, self.e).intencao, "erro")
+
+    def test_exemplo_de_quando_pede_selecao(self):
+        texto = "Dê um exemplo de quando usar o Adapter, explicando o porquê."
+        self.assertEqual(rotear(texto, self.e).intencao, "quando")
+
+    def test_exemplo_de_uso_equivocado_pede_erro(self):
+        self.assertEqual(rotear("Dê um exemplo de uso equivocado do Strategy.", self.e).intencao, "erro")
+
+    def test_fora_do_escopo_vence_confusao(self):
+        d = rotear("Qual a diferença entre Strategy e Observer?", self.e)
+        self.assertEqual(d.motivo, "fora_escopo")
+        self.assertIn("Observer", d.resposta)
+
+    def test_vizinho_do_padrao_citado_vira_confusao(self):
+        d = rotear("Qual a diferença entre Strategy e State?", self.e)
+        self.assertEqual((d.intencao, d.padrao.nome), ("confusoes", "Strategy"))
+
+    def test_explicacao_de_vizinho_fora_do_escopo_e_recusada(self):
+        estado = EstadoAluno(padrao="Adapter")
+        d = rotear("fale sobre o modelo bridge", estado)
+        self.assertEqual(d.motivo, "fora_escopo")
+        self.assertEqual(d.alvo, "bridge")
+        self.assertIn("Bridge", d.resposta)
+
+    def test_esquece_o_padrao_atual_nao_usa_estado_da_sessao(self):
+        estado = EstadoAluno(padrao="Adapter")
+        d = rotear("esquece o adapter, me fale apenas do proxy", estado)
+        self.assertEqual(d.motivo, "fora_escopo")
+        self.assertEqual(d.alvo, "proxy")
+        self.assertIn("Proxy", d.resposta)
+
+    def _assert_fora_do_tema(self, texto):
+        chamadas = []
+
+        def classificador(pergunta, padrao):
+            chamadas.append(pergunta)
+            return "conceito"
+
+        d = rotear(texto, EstadoAluno(padrao="Adapter"), classificador)
+        self.assertEqual(chamadas, [])          # não gasta modelo com assunto alheio
+        self.assertIsNone(d.intencao)
+        self.assertIsNone(d.padrao)
+        self.assertEqual(d.motivo, "fora_topico")
+        self.assertIn("Strategy e Adapter", d.resposta)
+
+    def test_ofensiva_nao_vira_conceito_do_padrao_da_sessao(self):
+        self._assert_fora_do_tema("voce ja goonou hoje?")
+
+    def test_hardware_nao_vira_conceito_do_padrao_da_sessao(self):
+        self._assert_fora_do_tema("quais partes um computador tem como hardware")
+
     def test_padrao_da_sessao(self):
         self.e.padrao = "Strategy"
         self.assertEqual(rotear("quando devo evitar?", self.e).padrao.nome, "Strategy")
@@ -118,6 +183,17 @@ class ValidadoresTest(unittest.TestCase):
         for p in PADROES.values():
             self.assertEqual(validar_exercicio(p.exercicio_fixo, p), [], p.nome)
 
+    def test_exercicio_que_responde_a_si_mesmo_e_invalido(self):
+        txt = ("**Cenário:** use o padrão\n**Sua tarefa:** x\n"
+               "Minha resposta: eu criaria uma interface comum")
+        self.assertTrue(any("resposta" in p for p in validar_exercicio(txt, STRATEGY)))
+
+    def test_regras_do_exercicio_nao_nomeiam_padroes(self):
+        from agente.prompts import PROMPT_EXERCICIO, REGRAS_EXERCICIO
+        for texto in (REGRAS_EXERCICIO, PROMPT_EXERCICIO):
+            for termo in ("Strategy", "Adapter", "Context", "Target", "Adaptee"):
+                self.assertNotIn(termo, texto)
+
     def test_context_em_adapter_e_invalido(self):
         self.assertTrue(validar_texto("O Context chama o adaptador.", ADAPTER, "mecanismo", 100))
         self.assertFalse(validar_texto("O Context chama o adaptador.", ADAPTER, "comparar", 100))
@@ -135,6 +211,11 @@ class ValidadoresTest(unittest.TestCase):
         self.assertTrue(validar_feedback(sem_marcas, exigir_resultado=True))
         completo = sem_marcas + "\nRESULTADO: PARCIAL\nCONCEITO: injeção"
         self.assertEqual(validar_feedback(completo, exigir_resultado=True), [])
+
+    def test_feedback_que_copia_template_e_rejeitado(self):
+        copia = ('**O que você escreveu:** "trecho literal da resposta, até 30 palavras"\n'
+                 "**Pergunta para avançar:** e agora?\nRESULTADO: PARCIAL\nCONCEITO: x")
+        self.assertTrue(validar_feedback(copia, exigir_resultado=True))
 
     def test_lacuna_nao_e_erro(self):
         from agente.validadores import veredito_efetivo
@@ -212,6 +293,25 @@ class FluxoTest(unittest.TestCase):
         self.assertNotIn("Strategy", r)
         self.assertIsNotNone(t.estado.exercicio)
 
+    def test_exercicio_nao_recebe_nome_do_padrao_no_estado(self):
+        valido = ["**Cenário:** uma loja precisa variar o cálculo.\n"
+                  "**Sua tarefa:** identifique o que varia.\nMinha resposta", "VEREDITO: OK"]
+        m = MotorFalso(valido)
+        Tutor(m, registrar=False).responder("Me dê um exercício sobre Strategy")
+        enviado = m.recebidos[0][1]
+        for termo in ("Strategy", "Context", "Adapter", "Target", "Adaptee"):
+            self.assertNotIn(termo, enviado["estado"])
+            self.assertNotIn(termo, enviado["fatos"])
+
+    def test_avaliacao_com_template_cai_no_fixo(self):
+        copia = ['**O que você escreveu:** "trecho literal da resposta, até 30 palavras"\n'
+                 "**Pergunta para avançar:** e agora?\nRESULTADO: PARCIAL\nCONCEITO: x",
+                 "VEREDITO: OK"]
+        t = Tutor(MotorFalso(copia, copia), registrar=False)
+        t.estado = estado_com_exercicio()
+        r = t.responder("Minha resposta: criaria uma interface e injetaria a regra")
+        self.assertIn("Não consegui avaliar", r)
+
     def test_avaliacao_registra_dificuldade(self):
         fb = ("**O que você escreveu:** \"x\"\n**Pergunta para avançar:** e agora?\n"
               "RESULTADO: PARCIAL\nCONCEITO: quem escolhe a regra")
@@ -246,6 +346,21 @@ class FluxoTest(unittest.TestCase):
         t = Tutor(m, registrar=False)
         r = t.responder("O que é o Strategy?")
         self.assertNotIn("```", r); self.assertEqual(len(m.recebidos), 1)
+
+    def test_chamada_orfa_de_pseudocodigo_e_removida(self):
+        m = MotorFalso(["Vamos ao exemplo.\n\nAqui está um exemplo de pseudocódigo:\n\n"
+                        "```\nx\n```\n\nAgora, quando evitar.", "VEREDITO: OK"])
+        t = Tutor(m, registrar=False)
+        r = t.responder("Quando devo evitar o Strategy?")
+        self.assertNotIn("pseudocódigo", r)
+        self.assertIn("Agora, quando evitar", r)
+
+    def test_linha_que_anuncia_codigo_e_removida(self):
+        m = MotorFalso(["Vamos ver como isso fica:\n\n```java\nx\n```\n\nFaz sentido?",
+                        "VEREDITO: OK"])
+        r = Tutor(m, registrar=False).responder("O que é o Strategy?")
+        self.assertNotIn("Vamos ver", r)
+        self.assertIn("Faz sentido", r)
 
     def test_conversa_passa_pelo_modelo(self):
         m = MotorFalso(["Oi! Sou tutor de Strategy e Adapter. Por onde quer começar?"])

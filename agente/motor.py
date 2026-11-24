@@ -10,7 +10,7 @@ import urllib.request
 from typing import Protocol
 from urllib.parse import urlparse
 
-from .prompts import AGENTES, REGRAS, TAREFAS
+from .prompts import AGENTES, REGRAS, REGRAS_EXERCICIO, TAREFAS
 
 # Recomendação da disciplina, em ordem de preferência. Não é uma lista fechada:
 # se nenhum destes estiver instalado, o motor usa outro modelo de conversa e avisa.
@@ -183,7 +183,7 @@ class MotorCrewAI:
             self.base_url, self.modelo = base, modelo
             self._llm = LLM(model=modelo, base_url=base, is_litellm=True,
                             temperature=0.3, timeout=TIMEOUT_LLM, max_tokens=MAX_TOKENS,
-                            num_ctx=NUM_CTX)
+                            num_ctx=NUM_CTX, context_window_size=NUM_CTX)
         return self._llm
 
     def rodar(self, tarefas: list[str], inputs: dict[str, str]) -> list[str]:
@@ -197,9 +197,10 @@ class MotorCrewAI:
             nome = t["agente"]
             if nome not in agentes:
                 a = AGENTES[nome]
+                regras = REGRAS_EXERCICIO if tid == "exercicio" else REGRAS
                 agentes[nome] = Agent(
                     role=a["role"], goal=a["goal"],
-                    backstory=a["backstory"] + "\n\n" + REGRAS,
+                    backstory=a["backstory"] + "\n\n" + regras,
                     llm=llm, allow_delegation=False, verbose=False,
                 )
             lista.append(Task(description=t["descricao"], expected_output=t["saida"],
