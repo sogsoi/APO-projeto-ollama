@@ -138,7 +138,7 @@ Além do guardião, existem barreiras determinísticas:
 - padrão GoF fora do escopo é recusado com honestidade;
 - fala longa sem sinal de resposta não é confundida com tentativa de exercício;
 - falha do Ollama vira mensagem clara no CLI, sem traceback;
-- 52 testes cobrem roteamento, validação, conversa, fallback, estado e fluxo.
+- 91 testes (`test_tutor.py` e `test_motor.py`) cobrem roteamento, validação, conversa, fallback, estado, fluxo e detecção automática de modelo no Ollama.
 
 ## 9. Limitações
 

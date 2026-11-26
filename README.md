@@ -2,9 +2,10 @@
 
 Trabalho de ELC1070, Análise e Projeto de Sistemas OO.
 
-O sistema ensina dois padrões de projeto usando CrewAI e o modelo `qwen2.5:7b` no
-Ollama. Roda inteiro na máquina local, sem API paga, chave ou internet durante a
-execução.
+O sistema ensina dois padrões de projeto usando CrewAI e um modelo local no Ollama
+(detecta automaticamente o modelo instalado, priorizando `qwen2.5:7b` e aceitando
+`qwen2.5:3b` ou outro modelo de conversa; pode ser fixado via `MODELO_LLM`). Roda
+inteiro na máquina local, sem API paga, chave ou internet durante a execução.
 
 ## O que ele faz
 
@@ -44,7 +45,9 @@ agente/
   tutor.py            # orquestra roteia -> produz -> valida -> regenera -> fallback
   chat.py             # interface Gradio opcional
   __main__.py         # CLI
-testes/test_tutor.py  # testes sem modelo
+testes/
+  test_tutor.py       # testes de roteamento, validação, estado e fluxo sem modelo
+  test_motor.py       # testes de detecção automática de modelo e URL do Ollama
 docs/                 # prompts, justificativa, relatório e caderno
 evidencias/           # cenários e pareceres registrados
 ```
@@ -52,10 +55,10 @@ evidencias/           # cenários e pareceres registrados
 ## Instalação
 
 ```powershell
-cd qwen_stg
+cd APO-projeto-ollama
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-ollama pull qwen2.5:7b
+ollama pull qwen2.5:7b   # ou qwen2.5:3b em máquinas com 8 GB de RAM
 ```
 
 O `.env` desliga tracing e telemetria do CrewAI. O CrewAI e o LiteLLM carregam esse
@@ -134,9 +137,9 @@ Os testes não chamam o modelo e rodam em menos de um segundo:
 .\.venv\Scripts\python.exe -m unittest discover -s testes -v
 ```
 
-São 52 testes. Um deles só roda se houver `javac` no ambiente; os outros cobrem
-roteamento, recusas, conversa, validação, fallback, estado do aluno, exercício e
-avaliação.
+São 91 testes (`test_tutor.py` e `test_motor.py`). Um deles só roda se houver `javac`
+no ambiente; os outros cobrem roteamento, recusas, conversa, validação, fallback,
+estado do aluno, exercício, avaliação e detecção automática de modelo no Ollama.
 
 ## Limitações
 

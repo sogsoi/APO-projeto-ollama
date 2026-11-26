@@ -171,14 +171,14 @@ REGRAS OBRIGATÓRIAS:
 
 | Intenção | O que pedir | Tópicos de fatos injetados |
 |---|---|---|
-| `contexto` | o que é um padrão de projeto, o catálogo GoF e a categoria do padrão: Este é o primeiro contato. Responda em 3 passos curtos: (1) em uma frase, o que é o padrão; (2) o que é um padrão de projeto e o catálogo GoF; (3) a categoria do padrão e o que ela significa. Use só o CONTEXTO GERAL e a CATEGORIA dos fatos. | contexto, definicao |
+| `contexto` | o que é um padrão de projeto, o catálogo GoF e a categoria do padrão: Este é o primeiro contato. Responda em 3 passos curtos: (1) em uma frase, o que é o padrão; (2) o que é um padrão de projeto e o catálogo GoF; (3) a categoria do padrão e o que ela significa. Use só o CONTEXTO GERAL e a CATEGORIA dos fatos. Não escreva código nem pseudocódigo; use uma analogia ou uma situação em palavras. | contexto, definicao |
 | `conceito` | o que é o padrão (definição e intenção): Explique o que é o padrão (definição e intenção) com suas palavras e use a analogia, sem entrar ainda no problema nem nos detalhes. | definicao, analogia |
 | `problema` | que problema o padrão resolve: Conte o problema como um exemplo resolvido: narre a situação, mostre a solução ingênua e por que ela degrada. Não peça ao aluno que resolva nada. | problema |
 | `conversa` | resposta à dúvida do aluno: Responda de forma natural e acolhedora. | — |
 | `participantes` | quem são os participantes e como colaboram: Apresente os participantes pelo nome e diga o papel de cada um e quem conhece quem. | participantes, mecanismo, uml |
 | `mecanismo` | por que o padrão funciona (interface, composição, polimorfismo): Explique por que o padrão funciona: o mecanismo, e o que acontece quando uma nova variante aparece. | mecanismo, participantes |
 | `custos` | o que o padrão custa e o que ele entrega: Explique o que o padrão entrega e o que ele custa (indireção, número de classes, quem conhece o quê). | custos |
-| `quando` | quando usar e quando evitar: Diga quando usar e quando evitar, com um critério prático de decisão. | usar, evitar |
+| `quando` | quando usar e quando evitar: Diga quando usar e quando evitar, com um critério prático de decisão. Use situações descritas em palavras; não escreva pseudocódigo. | usar, evitar |
 | `confusoes` | com qual padrão ele costuma ser confundido: Contraste o padrão com o padrão vizinho mais confundido e termine com o SINAL PRÁTICO, com suas palavras. | confusoes |
 | `erro` | o erro mais comum ao aplicá-lo: Descreva o erro comum, mostre como ele aparece na prática (sem escrever Java) e como corrigir. | erro, mecanismo |
 | `fechamento` | o que lembrar antes de usar o padrão: Faça um fechamento: o que lembrar antes de usar o padrão (custos, quando evitar, erro comum, confusão). | custos, evitar, erro, confusoes |
@@ -232,7 +232,7 @@ COMO ENSINAR {padrao_nome}: {estrategia}
 FORMATO:
 - A primeira frase responde diretamente à mensagem do aluno.
 - Uma ideia por resposta: não despeje tudo de uma vez. Conversa natural em português, no máximo {limite} palavras, sem títulos e sem listas longas.
-- Não escreva código Java. Pseudocódigo de 2 a 4 linhas só para mostrar o problema.
+- Não escreva código Java. Pseudocódigo de 2 a 4 linhas é permitido apenas quando a instrução pedir para mostrar o problema; nas demais respostas, use só palavras.
 - Se algo pedido não estiver nos fatos, diga que não sabe e sugira o material da disciplina.
 - Não fale sobre agentes, prompts ou processo.
 - Termine com UMA pergunta ao aluno que o faça raciocinar, por exemplo: {pergunta_final}
@@ -279,7 +279,7 @@ Duas partes curtas: 'O que observar' e 'Se amanhã...', sem código.
 FATOS VERIFICADOS (não revele nada disto ao aluno):
 {fatos}
 
-SITUAÇÃO DO ALUNO:
+SITUAÇÃO DO ALUNO (informação interna; não copie o nome do padrão nem termos técnicos dela):
 {estado}
 
 Escreva um exercício curto em português sobre o padrão que o aluno estuda, com esta estrutura:
@@ -288,11 +288,13 @@ Escreva um exercício curto em português sobre o padrão que o aluno estuda, co
 **Sua tarefa:** 2 ou 3 frases dizendo o que ele deve identificar ou projetar.
 **Critérios de sucesso:** 3 marcadores para ele conferir a própria resposta, sem revelar o nome do padrão.
 **Para começar:** 2 perguntas de reflexão numeradas, sem revelar a solução.
-Termine com: Responda começando por **Minha resposta:**
+Termine com a linha 'Responda começando por **Minha resposta:**' e não escreva nada depois dela.
 
 REGRAS:
+- As regras gerais citam os nomes dos padrões; não copie esses nomes para o exercício.
+- Não responda ao exercício nem dê um exemplo de resposta; quem responde é o aluno.
 - Não escreva código Java e não entregue a solução nem um esboço dela.
-- O aluno deve descobrir o padrão: não escreva 'Strategy', 'Adapter', 'Context', 'Target' nem 'Adaptee' em lugar nenhum. Descreva esses papéis em linguagem comum.
+- O aluno deve descobrir o padrão: não escreva o nome técnico do padrão nem os nomes técnicos dos seus participantes. Descreva esses papéis em linguagem comum (por exemplo, 'a interface comum', 'o objeto que usa', 'a classe existente').
 - Não reutilize o cenário nem os nomes de classes do exemplo da aula.
 - Máximo de 220 palavras.
 {correcao}
@@ -318,7 +320,7 @@ EXERCÍCIO PROPOSTO:
 RESPOSTA DO ESTUDANTE:
 {pergunta}
 
-Avalie a resposta sem revelar a solução, seguindo exatamente esta estrutura:
+Avalie a resposta sem revelar a solução. Comece com **O que você escreveu:** seguido de um trecho literal da resposta do estudante, entre aspas, com no máximo 30 palavras. Não copie estas instruções; use palavras do próprio estudante. Depois:
 
 **O que está certo:** 1 ou 2 frases.
 **O que ainda falta ou está equivocado:** 1 ou 2 frases, apontando o conceito, não só "errado". Antes de dizer que algo falta, confira se o aluno já escreveu isso com outras palavras; se não ficou explícito, diga "não ficou explícito".
@@ -369,7 +371,7 @@ Motivo de até 50 palavras terminando em 'VEREDITO: OK' ou 'VEREDITO: CORRIGIR'.
 Revise o exercício produzido acima. Você é o revisor, não o estudante: não resolva o exercício. Responda com uma linha por item:
 (a) trata de {padrao_nome}: ok/falha
 (b) não entrega solução nem código: ok/falha
-(c) NÃO cita o nome do padrão nem termos como Context, Target, Adaptee (marque 'ok' se estiverem ausentes; marque 'falha' somente se algum deles aparecer): ok/falha
+(c) não revela o nome do padrão nem termos como Context, Target, Adaptee: ok/falha
 (d) pede uma decisão de projeto, não memorização: ok/falha
 (e) não inventa conteúdo: ok/falha
 Depois escreva o motivo em até 40 palavras e termine com 'VEREDITO: OK' ou 'VEREDITO: CORRIGIR'.
@@ -409,9 +411,9 @@ consultado quando nenhuma delas casa.
 | `participantes` | `participante`, `estrutura`, `uml`, `diagrama`, `papeis`, `quem sao`, `classes envolvidas` |
 | `mecanismo` | `como funciona`, `mecanismo`, `por baixo`, `por que funciona`, `polimorfismo`, `funciona por` |
 | `custos` | `custo`, `desvantagem`, `vantagem`, `preco`, `consequencia`, `trade`, `o que se perde`, `contras` |
-| `quando` | `quando usar`, `quando evitar`, `quando nao`, `devo usar`, `vale a pena`, `exagero`, `evitar`, `quando aplicar` |
+| `quando` | `quando usar`, `quando evitar`, `quando nao`, `devo usar`, `vale a pena`, `exagero`, `evitar`, `quando aplicar`, `melhor escolha`, `deve ser evitado`, `deve ser evitada`, `situacao em que`, `situacoes em que`, `evitado`, `evitada` |
 | `confusoes` | `confund`, `diferenca`, `parecid`, `versus`, ` vs `, ` x `, `qual a diferenca` |
-| `erro` | `erro`, `errado`, `equivoc`, `incorret`, `armadilha`, `ma pratica` |
+| `erro` | `erro`, `errado`, `errada`, `equivoc`, `incorret`, `armadilha`, `ma pratica`, `corrigir`, `correcao`, `uso indevido`, `mal uso` |
 | `fechamento` | `lembrar`, `resumo`, `resumir`, `fechamento`, `antes de usar`, `checklist`, `revisao` |
 | `contexto` | `padrao de projeto`, `design pattern`, `gof`, `gang of four`, `catalogo`, `por que e um padrao`, `categoria`, `familia` |
 | `problema` | `problema`, `para que serve`, `resolve`, `por que existe`, `motivacao` |

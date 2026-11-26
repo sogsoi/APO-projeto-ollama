@@ -34,7 +34,7 @@ aparecer erro de PTX/CUDA, o backend Vulkan não está ativo.
 .\.venv\Scripts\python.exe -m unittest discover -s testes -v
 ```
 
-Esperado: 52 testes. Um é pulado se não houver `javac`; os demais devem passar.
+Esperado: 91 testes (`test_tutor.py` e `test_motor.py`). Um é pulado se não houver `javac`; os demais devem passar.
 
 ## 4. Uma pergunta pela CLI
 

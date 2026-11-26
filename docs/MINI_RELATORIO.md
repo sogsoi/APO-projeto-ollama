@@ -63,7 +63,8 @@ a lista de intenções.
 
 **Os testes ficaram executáveis sem CrewAI.** O import do CrewAI é tardio, dentro do
 motor. Os testes usam um motor falso e cobrem roteamento, recusas, validação,
-fallback, exercício, avaliação, conversa e estado. São 52 testes; o de compilação Java só roda
+fallback, exercício, avaliação, conversa, estado e detecção automática de modelo (`3b`/`7b`).
+São 91 testes (`test_tutor.py` e `test_motor.py`); o de compilação Java só roda
 se houver `javac`.
 
 **Os testes acharam furos.** O feedback podia ser aprovado sem as linhas
