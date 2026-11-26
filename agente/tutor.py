@@ -11,7 +11,7 @@ from pathlib import Path
 from .conhecimento import (DESCRICAO_INTENCAO, PADROES, TOPICOS_POR_INTENCAO, Padrao,
                            fatos_comparacao, renderizar_fatos)
 from .estado import EstadoAluno
-from .motor import MODELO, Motor, MotorCrewAI
+from .motor import Motor, ModeloIndisponivel, MotorCrewAI
 from .prompts import INSTRUCOES_INTENCAO
 from .roteador import Decisao, proximo_topico, rotear
 from .validadores import (extrair_resultado, extrair_veredito, palavras, validar_exemplo,
@@ -27,6 +27,16 @@ MAX_TENTATIVAS = 2
 MSG_ERRO_MODELO = ("Não consegui falar com o modelo local agora. Verifique se o Ollama está "
                    "rodando (comando: ollama ps) e tente de novo.")
 
+# No exercício o aluno deve descobrir o padrão; nada enviado ao modelo pode entregá-lo.
+_NEUTRO_EXERCICIO = {
+    "ConcreteStrategy": "implementação concreta",
+    "Strategy": "estratégia",
+    "Context": "contexto",
+    "Adapter": "adaptador",
+    "Target": "interface esperada",
+    "Adaptee": "classe existente",
+}
+
 
 def _limpar(texto: str) -> str:
     texto = (texto or "").strip()
@@ -35,8 +45,17 @@ def _limpar(texto: str) -> str:
 
 
 def _sem_codigo(texto: str) -> str:
+    # Remove o bloco cercado e a linha que o anunciava (a que termina em ':').
+    texto = re.sub(r"(?m)^[^\n]*:\s*\n\s*```.*?```\s*", "", texto, flags=re.DOTALL)
     texto = re.sub(r"```.*?```", "", texto, flags=re.DOTALL)
-    return texto.split("```")[0].strip()
+    texto = texto.split("```")[0]
+    # Sobras de uma chamada órfã, caso o bloco tenha sido cortado de outro jeito.
+    linhas = [
+        linha for linha in texto.splitlines()
+        if not re.match(r"(?i)^\s*(aqui|abaixo|segue|veja)\b.*\b(c[oó]digo|pseudoc[oó]digo)\b.*:\s*$",
+                        linha)
+    ]
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(linhas)).strip()
 
 
 class Tutor:
@@ -60,6 +79,9 @@ class Tutor:
                             else decisao.resposta)
             else:
                 resposta = self._executar(decisao, texto, info)
+        except ModeloIndisponivel as erro:
+            info["erro"] = type(erro).__name__
+            return str(erro)
         except Exception as erro:  # falha do modelo ou saída inesperada
             info["erro"] = type(erro).__name__
             return f"{MSG_ERRO_MODELO}\nDetalhe técnico: {type(erro).__name__}"
@@ -235,10 +257,23 @@ class Tutor:
         return resposta
 
     # --------------------------------------------------------------- exercício
+    @staticmethod
+    def _neutralizar(texto: str) -> str:
+        for termo in sorted(_NEUTRO_EXERCICIO, key=len, reverse=True):
+            texto = re.sub(rf"\b{re.escape(termo)}\b", _NEUTRO_EXERCICIO[termo],
+                           texto, flags=re.IGNORECASE)
+        return texto
+
+    def _estado_exercicio(self, p: Padrao) -> str:
+        return self._neutralizar(self.estado.resumo(p.nome, None, ocultar_padrao=True))
+
+    def _fatos_exercicio(self, p: Padrao) -> str:
+        return self._neutralizar(p.fatos(("definicao", "participantes", "erro")))
+
     def _exercicio(self, p: Padrao, info: dict) -> str:
         inputs = {
-            "fatos": p.fatos(("definicao", "participantes", "erro")),
-            "estado": self.estado.resumo(p.nome, None), "dominio": p.dominio_exercicio,
+            "fatos": self._fatos_exercicio(p),
+            "estado": self._estado_exercicio(p), "dominio": p.dominio_exercicio,
             "padrao_nome": p.nome,
         }
         resposta = self._produzir(
@@ -270,9 +305,6 @@ class Tutor:
         if info.get("fallback"):
             res, conc = "PARCIAL", ""
         feedback = _sem_codigo(feedback)
-        if not feedback.startswith("**O que você escreveu:**"):
-            trecho = " ".join(texto.split()[:30])
-            feedback = f'**O que você escreveu:** "{trecho}"\n\n{feedback}'
 
         self.estado.tentativas += 1
         if res == "CORRETO":
@@ -301,7 +333,8 @@ class Tutor:
                 "data_hora": datetime.now().astimezone().isoformat(timespec="seconds"),
                 "intencao": d.intencao or d.motivo, "motivo_rota": d.motivo,
                 "padrao": d.padrao.nome if d.padrao else None, "pergunta": pergunta,
-                "duracao_s": round(duracao, 1), "modelo": MODELO, **info,
+                "duracao_s": round(duracao, 1),
+                "modelo": getattr(self.motor, "modelo", None), **info,
             }
             with (DIR_EVIDENCIAS / "execucoes.jsonl").open("a", encoding="utf-8") as f:
                 f.write(json.dumps(reg, ensure_ascii=False) + "\n")
